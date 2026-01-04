@@ -43,3 +43,17 @@ def parse_json_safely(text: str, raw_file: Path) -> List[Dict]:
     if not isinstance(data, list):
         raise ValueError("Expected JSON array. But got something else.")
     return data
+
+
+def pick_log_file(file_path: str = None, log_dir: str = "data/logs") -> Path:
+    if file_path:
+        path = Path(file_path)
+        if not path.exists():
+            raise FileNotFoundError(f"Log File {file_path} does not exist.")
+        return path
+    
+    # Pick the first log file in the directory
+    log_files = sorted(Path(log_dir).glob("*.log"))
+    if not log_files:
+        raise FileNotFoundError(f"No log files found in directory {log_dir}.")
+    return log_files[0]

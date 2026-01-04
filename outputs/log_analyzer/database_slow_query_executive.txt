@@ -1,0 +1,4 @@
+We experienced several issues with our database that caused delays and errors for users.
+Some transactions failed due to conflicts, and many users were unable to connect to the system because we reached our connection limit.
+We are optimizing our database queries and increasing the connection capacity to resolve these issues.
+We expect to have everything fixed within the next few hours.

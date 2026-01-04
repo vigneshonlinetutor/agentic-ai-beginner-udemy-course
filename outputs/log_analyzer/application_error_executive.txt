@@ -1,0 +1,4 @@
+We experienced a series of critical issues that caused our application to shut down.
+This affected users trying to make payments and access their profiles, leading to downtime.
+We are currently investigating the payment gateway and database issues to resolve them.
+We expect to have everything back up and running shortly.

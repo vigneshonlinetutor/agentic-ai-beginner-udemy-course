@@ -1,0 +1,37 @@
+{
+  "summary": "Multiple performance issues identified including deadlocks and connection saturation.",
+  "error_count": 5,
+  "critical_errors": [
+    {
+      "timestamp": "2026-01-04 09:17:00",
+      "message": "Deadlock detected",
+      "severity": "high"
+    },
+    {
+      "timestamp": "2026-01-04 09:20:10",
+      "message": "Connection pool saturation: 100/100 connections active",
+      "severity": "high"
+    },
+    {
+      "timestamp": "2026-01-04 09:20:11",
+      "message": "Query timeout: exceeded 10s limit",
+      "severity": "high"
+    }
+  ],
+  "root_causes": [
+    "Concurrent updates causing deadlocks",
+    "High traffic leading to connection pool saturation",
+    "Inefficient queries causing timeouts"
+  ],
+  "affected_systems": [
+    "database",
+    "api"
+  ],
+  "recommendations": [
+    "Optimize slow queries",
+    "Increase connection pool size",
+    "Implement retry logic for deadlocks",
+    "Monitor performance"
+  ],
+  "severity": "high"
+}

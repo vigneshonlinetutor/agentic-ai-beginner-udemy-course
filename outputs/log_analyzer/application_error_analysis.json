@@ -1,0 +1,49 @@
+{
+  "summary": "Multiple critical errors and warnings related to payment processing, database connectivity, and API failures.",
+  "error_count": 7,
+  "critical_errors": [
+    {
+      "timestamp": "2026-01-04 10:24:12",
+      "message": "Payment processing failed for order_id=ORD-12345",
+      "severity": "high"
+    },
+    {
+      "timestamp": "2026-01-04 10:25:01",
+      "message": "Database connection lost",
+      "severity": "high"
+    },
+    {
+      "timestamp": "2026-01-04 10:25:02",
+      "message": "Connection pool exhausted",
+      "severity": "critical"
+    },
+    {
+      "timestamp": "2026-01-04 10:25:03",
+      "message": "Failed to fetch user data for user_id=7823",
+      "severity": "high"
+    },
+    {
+      "timestamp": "2026-01-04 10:25:15",
+      "message": "NullPointerException in user_service.get_profile()",
+      "severity": "high"
+    }
+  ],
+  "root_causes": [
+    "Payment gateway timeout",
+    "Database connection issues",
+    "Exhausted connection pool",
+    "NullPointerException due to failed data retrieval"
+  ],
+  "affected_systems": [
+    "payment",
+    "database",
+    "api"
+  ],
+  "recommendations": [
+    "Investigate payment gateway timeout issues",
+    "Review and optimize database configuration",
+    "Implement better error handling in the API",
+    "Set up monitoring and alerts for critical components"
+  ],
+  "severity": "high"
+}
