@@ -13,7 +13,7 @@ MODEL = os.getenv("MODEL", "gpt-4o-mini") # Default to gpt-4o-mini
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY","")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY","")
 OLLAMA_HOST = os.getenv("OLLAMA_HOST","http://localhost:11434")
-TIMEOUT = os.getenv("TIMEOUT", 60)
+TIMEOUT = int(os.getenv("TIMEOUT", 60))
 
 # Type alias for message structure
 Message = Dict[str, str]

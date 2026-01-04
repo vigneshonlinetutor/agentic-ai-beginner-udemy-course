@@ -1,0 +1,60 @@
+[
+  {
+    "id": "TC-001",
+    "title": "Enable 2FA Successfully",
+    "steps": [
+      "Log into the account",
+      "Navigate to Security Settings",
+      "Click 'Enable 2FA'",
+      "Scan the QR code with the authenticator app",
+      "Enter a valid 6-digit OTP from the authenticator app"
+    ],
+    "expected": "2FA should be enabled and a confirmation email should be received",
+    "priority": "High"
+  },
+  {
+    "id": "TC-002",
+    "title": "Login with 2FA Enabled Successfully",
+    "steps": [
+      "Ensure 2FA is enabled on the account",
+      "Enter correct email and password",
+      "Enter a valid 6-digit OTP within 60 seconds"
+    ],
+    "expected": "User should be logged in successfully",
+    "priority": "High"
+  },
+  {
+    "id": "TC-003",
+    "title": "Account Lock After Invalid OTP Attempts",
+    "steps": [
+      "Navigate to OTP verification page",
+      "Enter an invalid OTP three times"
+    ],
+    "expected": "Account should be temporarily locked for 10 minutes and a security alert email should be received",
+    "priority": "High"
+  },
+  {
+    "id": "TC-004",
+    "title": "Use Backup Code for Login",
+    "steps": [
+      "Navigate to OTP verification page",
+      "Click 'Use backup code'",
+      "Enter a valid backup code"
+    ],
+    "expected": "User should be logged in successfully and the backup code should be marked as used",
+    "priority": "Medium"
+  },
+  {
+    "id": "TC-005",
+    "title": "Disable 2FA Successfully",
+    "steps": [
+      "Ensure 2FA is enabled",
+      "Go to Security Settings",
+      "Click 'Disable 2FA'",
+      "Enter current password",
+      "Enter a valid OTP one last time"
+    ],
+    "expected": "2FA should be disabled and a confirmation email should be received",
+    "priority": "High"
+  }
+]
