@@ -1,60 +1,56 @@
 [
   {
     "id": "TC-001",
-    "title": "Enable 2FA Successfully",
+    "title": "Valid User Registration",
     "steps": [
-      "Log into the account",
-      "Navigate to Security Settings",
-      "Click 'Enable 2FA'",
-      "Scan the QR code with the authenticator app",
-      "Enter a valid 6-digit OTP from the authenticator app"
+      "Prepare a valid request body with all required fields",
+      "Send a POST request to /api/v1/users/register",
+      "Check the response status"
     ],
-    "expected": "2FA should be enabled and a confirmation email should be received",
+    "expected": "Response status should be 201 Created and contain userId and authToken",
     "priority": "High"
   },
   {
     "id": "TC-002",
-    "title": "Login with 2FA Enabled Successfully",
+    "title": "Duplicate Email Registration",
     "steps": [
-      "Ensure 2FA is enabled on the account",
-      "Enter correct email and password",
-      "Enter a valid 6-digit OTP within 60 seconds"
+      "Prepare a request body with an email that already exists in the system",
+      "Send a POST request to /api/v1/users/register",
+      "Check the response status"
     ],
-    "expected": "User should be logged in successfully",
+    "expected": "Response status should be 409 Conflict with error message 'Email already registered'",
     "priority": "High"
   },
   {
     "id": "TC-003",
-    "title": "Account Lock After Invalid OTP Attempts",
+    "title": "Invalid Password Registration",
     "steps": [
-      "Navigate to OTP verification page",
-      "Enter an invalid OTP three times"
+      "Prepare a request body with a password that does not meet the criteria (e.g., less than 8 characters)",
+      "Send a POST request to /api/v1/users/register",
+      "Check the response status"
     ],
-    "expected": "Account should be temporarily locked for 10 minutes and a security alert email should be received",
+    "expected": "Response status should be 400 Bad Request with specific error details",
     "priority": "High"
   },
   {
     "id": "TC-004",
-    "title": "Use Backup Code for Login",
+    "title": "Invalid Mobile Number Registration",
     "steps": [
-      "Navigate to OTP verification page",
-      "Click 'Use backup code'",
-      "Enter a valid backup code"
+      "Prepare a request body with an invalid mobile number format",
+      "Send a POST request to /api/v1/users/register",
+      "Check the response status"
     ],
-    "expected": "User should be logged in successfully and the backup code should be marked as used",
+    "expected": "Response status should be 400 Bad Request with error details about mobile number format",
     "priority": "Medium"
   },
   {
     "id": "TC-005",
-    "title": "Disable 2FA Successfully",
+    "title": "Rate Limiting Exceeded",
     "steps": [
-      "Ensure 2FA is enabled",
-      "Go to Security Settings",
-      "Click 'Disable 2FA'",
-      "Enter current password",
-      "Enter a valid OTP one last time"
+      "Send 6 registration requests from the same IP within an hour",
+      "Check the response status of the 6th request"
     ],
-    "expected": "2FA should be disabled and a confirmation email should be received",
-    "priority": "High"
+    "expected": "Response status should be 429 Too Many Requests",
+    "priority": "Medium"
   }
 ]

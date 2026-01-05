@@ -26,3 +26,6 @@ env/
 # Testing
 .pytest_cache/
 .mypy_cache/
+
+# Observability Logs
+observability_logs/

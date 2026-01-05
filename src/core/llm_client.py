@@ -4,6 +4,9 @@ import os
 from typing import List, Dict
 import httpx
 from dotenv import load_dotenv
+import time
+
+from .cost_tracker import calculate_cost
 
 load_dotenv() # Load environment variables from .env file
 
@@ -18,18 +21,44 @@ TIMEOUT = int(os.getenv("TIMEOUT", 60))
 # Type alias for message structure
 Message = Dict[str, str]
 
-def chat(messages: List[Message])-> str:
-    # Send messages to the LLM and return the response text
+def chat(messages: List[Message]) -> Dict:
+    """Send messages to LLM and return response with metadata."""
     if not messages:
         raise ValueError("Messages list cannot be empty")
+
+    start_time = time.time()
+
     if PROVIDER == "openai":
-        return _call_openai(messages)
+        response = _call_openai(messages)
     elif PROVIDER == "google":
-        return _call_gemini(messages)
+        response = _call_gemini(messages)
     elif PROVIDER == "ollama":
-        return _call_ollama(messages)
+        response = _call_ollama(messages)
     else:
         raise NotImplementedError(f"Provider {PROVIDER} not implemented")
+
+    duration_ms = int((time.time() - start_time) * 1000)
+
+    # Estimate tokens (rough: 1 token ≈ 4 characters)
+    prompt_text = " ".join([m["content"] for m in messages])
+    prompt_tokens = len(prompt_text) // 4
+    response_tokens = len(response) // 4
+    
+    # Calculate Cost
+    cost = calculate_cost(PROVIDER, MODEL, prompt_tokens, response_tokens)
+
+    return {
+        "response": response,
+        "metadata": {
+            "provider": PROVIDER,
+            "model": MODEL,
+            "prompt_tokens": prompt_tokens,
+            "response_tokens": response_tokens,
+            "total_tokens": prompt_tokens + response_tokens,
+            "duration_ms": duration_ms,
+            "cost_usd": cost
+        }
+    }
 
 def _http_post(url: str, headers: Dict, payload: Dict) -> Dict:
     with httpx.Client(timeout=TIMEOUT) as client:

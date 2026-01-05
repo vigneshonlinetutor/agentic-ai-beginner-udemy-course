@@ -1,7 +1,10 @@
 import sys
 from pathlib import Path
 import json
-from src.core import chat, parse_json_safely, pick_log_file
+from src.core import chat, pick_log_file, get_logger, print_summary
+import time
+
+logger = get_logger("Log Analyzer Agent")
 
 # Project Paths
 ROOT = Path(__file__).resolve().parents[2]
@@ -52,67 +55,99 @@ Be technical in analysis but simple in executive summary."""
 
 def main():
     """Run the log analyzer agent."""
+    start_time = time.time()
+    llm_call_count = 0
+    metadata = None
 
-    # 1. Pick log file
-    file_arg = sys.argv[1] if len(sys.argv) > 1 else None
-    log_file = pick_log_file(file_arg, LOG_DIR)
-    log_content = log_file.read_text(encoding="utf-8")
-
-    print(f"📄 Analyzing: {log_file.name}")
-    print(f"📏 Log size: {len(log_content)} characters")
-
-    # 2. Build messages
-    messages = [
-        {"role": "system", "content": SYSTEM_PROMPT},
-        {"role": "user", "content": f"Analyze this log file:\\n\\n{log_content}"}
-    ]
-
-    # 3. Call LLM (single call for all outputs)
-    print("🤖 Running analysis...")
-    response = chat(messages)
-
-    # 4. Split response into 3 parts: text, JSON, executive
-    text_report = response
-    json_text = '{"error": "No JSON generated"}'
-    exec_summary = "Executive summary not generated."
-
-    # Extract JSON
-    if "```json" in response:
-        parts = response.split("```json")
-        text_report = parts[0].strip()
-        remainder = parts[1]
-
-        if "```" in remainder:
-            json_block = remainder.split("```")[0].strip()
-            json_text = json_block
-
-            # Extract executive summary
-            after_json = remainder.split("```", 1)[1]
-            if "---EXECUTIVE---" in after_json:
-                exec_parts = after_json.split("---EXECUTIVE---")
-                exec_summary = exec_parts[1].strip()
-
-    # 5. Save text report
-    report_file = OUT_DIR / f"{log_file.stem}_analysis.txt"
-    report_file.write_text(text_report, encoding="utf-8")
-
-    # 6. Save JSON
     try:
-        json_data = json.loads(json_text)
-        json_file = OUT_DIR / f"{log_file.stem}_analysis.json"
-        json_file.write_text(json.dumps(json_data, indent=2), encoding="utf-8")
-        print(f"📊 JSON saved: {json_file.relative_to(ROOT)}")
-    except json.JSONDecodeError as e:
-        print(f"⚠️  JSON parsing failed: {e}")
+        # 1. Pick log file
+        file_arg = sys.argv[1] if len(sys.argv) > 1 else None
+        log_file = pick_log_file(file_arg, LOG_DIR)
+        log_content = log_file.read_text(encoding="utf-8")
 
-    # 7. Save executive summary
-    exec_file = OUT_DIR / f"{log_file.stem}_executive.txt"
-    exec_file.write_text(exec_summary, encoding="utf-8")
+        logger.info(f"Analyzing: {log_file.name}")
+        logger.info(f"Log size: {len(log_content)} characters")
 
-    print(f"✅ Analysis complete")
-    print(f"📝 Technical report: {report_file.relative_to(ROOT)}")
-    print(f"👔 Executive summary: {exec_file.relative_to(ROOT)}")
+        # 2. Build messages
+        messages = [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": f"Analyze this log file:\\\\n\\\\n{log_content}"}
+        ]
 
+        # 3. Call LLM (single call for all outputs)
+        logger.info("Running analysis...")
+        result = chat(messages)
+        llm_call_count += 1
+        response = result["response"]
+        metadata = result["metadata"]
+
+        logger.debug(f"LLM call: {metadata['provider']}/{metadata['model']}, "
+                     f"{metadata['total_tokens']} tokens, {metadata['duration_ms']}ms")
+
+        logger.info(f"Cost: ${metadata['cost_usd']:.6f} ({metadata['total_tokens']} tokens)")
+
+        # 4. Split response into 3 parts: text, JSON, executive
+        text_report = response
+        json_text = '{"error": "No JSON generated"}'
+        exec_summary = "Executive summary not generated."
+
+        # Extract JSON
+        if "```json" in response:
+            parts = response.split("```json")
+            text_report = parts[0].strip()
+            remainder = parts[1]
+
+            if "```" in remainder:
+                json_block = remainder.split("```")[0].strip()
+                json_text = json_block
+
+                # Extract executive summary
+                after_json = remainder.split("```", 1)[1]
+                if "---EXECUTIVE---" in after_json:
+                    exec_parts = after_json.split("---EXECUTIVE---")
+                    exec_summary = exec_parts[1].strip()
+
+        # 5. Save text report
+        report_file = OUT_DIR / f"{log_file.stem}_analysis.txt"
+        report_file.write_text(text_report, encoding="utf-8")
+
+        # 6. Save JSON
+        try:
+            json_data = json.loads(json_text)
+            json_file = OUT_DIR / f"{log_file.stem}_analysis.json"
+            json_file.write_text(json.dumps(json_data, indent=2), encoding="utf-8")
+            logger.info(f"JSON saved: {json_file.relative_to(ROOT)}")
+        except json.JSONDecodeError as e:
+            logger.info(f"⚠JSON parsing failed: {e}")
+
+        # 7. Save executive summary
+        exec_file = OUT_DIR / f"{log_file.stem}_executive.txt"
+        exec_file.write_text(exec_summary, encoding="utf-8")
+
+        logger.info(f"Analysis complete")
+        logger.info(f"Technical report: {report_file.relative_to(ROOT)}")
+        logger.info(f"Executive summary: {exec_file.relative_to(ROOT)}")
+
+        # Success summary
+        duration = time.time() - start_time
+        print_summary(duration, metadata, llm_call_count, "Success")
+
+    except Exception as e:
+        # Error summary
+        logger.error(f"Agent failed: {e}")
+        duration = time.time() - start_time
+
+        # Create dummy metadata if LLM wasn't called
+        if metadata is None:
+            metadata = {
+                "total_tokens": 0,
+                "cost_usd": 0.0,
+                "provider": "N/A",
+                "model": "N/A"
+            }
+
+        print_summary(duration, metadata, llm_call_count, "Failed")
+        raise
 
 if __name__ == "__main__":
     main()

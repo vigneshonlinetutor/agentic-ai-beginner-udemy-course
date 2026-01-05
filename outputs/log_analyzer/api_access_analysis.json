@@ -1,0 +1,53 @@
+{
+  "summary": "Multiple critical server-side errors affecting payment processing and internal services, alongside various client-side issues.",
+  "error_count": 13,
+  "critical_errors": [
+    {
+      "timestamp": "2026-01-04 14:18:00",
+      "message": "Internal server error on payments",
+      "severity": "high"
+    },
+    {
+      "timestamp": "2026-01-04 14:18:10",
+      "message": "Internal server error on payments",
+      "severity": "high"
+    },
+    {
+      "timestamp": "2026-01-04 14:18:20",
+      "message": "Internal server error on payments",
+      "severity": "high"
+    },
+    {
+      "timestamp": "2026-01-04 14:19:05",
+      "message": "Service temporarily unavailable for dashboard",
+      "severity": "high"
+    },
+    {
+      "timestamp": "2026-01-04 14:19:06",
+      "message": "Service temporarily unavailable for reports",
+      "severity": "high"
+    }
+  ],
+  "root_causes": [
+    "Payment service dependency failure or timeout",
+    "Dashboard/Reports service unavailability",
+    "Repeated invalid login attempts",
+    "Client-side data validation errors",
+    "Unauthorized access attempts"
+  ],
+  "affected_systems": [
+    "Payment Service",
+    "API Gateway",
+    "Dashboard Service",
+    "Reports Service",
+    "Authentication Service"
+  ],
+  "recommendations": [
+    "Investigate and resolve payment service 5xx errors immediately",
+    "Restore Dashboard/Reports service availability",
+    "Enhance monitoring and alerting for critical services",
+    "Review authentication security measures and rate limiting",
+    "Improve client-side validation feedback"
+  ],
+  "severity": "high"
+}

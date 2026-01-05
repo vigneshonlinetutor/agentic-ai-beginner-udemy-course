@@ -57,3 +57,16 @@ def pick_log_file(file_path: str = None, log_dir: str = "data/logs") -> Path:
     if not log_files:
         raise FileNotFoundError(f"No log files found in directory {log_dir}.")
     return log_files[0]
+
+def print_summary(duration: float, metadata: dict, llm_calls: int = 1, status: str = "Success"):
+    """Print performance summary."""
+    print("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+    print("📊 Performance Summary")
+    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+    print(f"⏱️  Duration:       {duration:.2f}s")
+    print(f"🤖 LLM Calls:      {llm_calls}")
+    print(f"📝 Total Tokens:   {metadata['total_tokens']}")
+    print(f"💰 Cost:           ${metadata['cost_usd']:.6f}")
+    print(f"🔧 Provider:       {metadata['provider']}/{metadata['model']}")
+    print(f"✅ Status:         {status}")
+    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
